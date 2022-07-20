@@ -1,6 +1,8 @@
 import os
+from dataclasses import dataclass
 
 
+@dataclass
 class Settings:
     """Class that have settings to be used in the application"""
 

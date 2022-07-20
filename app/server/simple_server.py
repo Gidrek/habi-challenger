@@ -9,6 +9,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from settings.settings import Settings
 from db.simple_orm import SimpleORM
 
+from models.property import Property
+
 
 class RunServer:
     """Class to run the SimpleServer interface"""
@@ -29,6 +31,7 @@ class RunServer:
     def run(self) -> None:
         """Runs the server in a infinite loop until interrup with the keyboard"""
         try:
+            self.orm.get_objects(Property)
             self.server.serve_forever()
         except KeyboardInterrupt:
             self.server.server_close()

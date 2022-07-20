@@ -1,2 +1,5 @@
+from server.simple_server import RunServer
+
 if __name__ == "__main__":
-    print("Habi microservice")
+    server = RunServer()
+    server.run()

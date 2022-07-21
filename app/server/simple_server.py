@@ -4,6 +4,7 @@ Simple server to access through HTTPS, this generate a JSON response
 import sys
 import json
 import logging
+import urllib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from settings.settings import Settings
@@ -41,7 +42,13 @@ class SimpleServer(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         """Serve a GET request."""
 
-        if self.path == "/":
+        path_with_query = self.path.split("?")
+        path = path_with_query[0]
+        query = ""
+        if len(path_with_query) > 1:
+            query = path_with_query[1]
+
+        if path == "/":
             # When got the root of the server, only response with JSON hello world
             self.send_response(200, "OK")
             self.send_header("Content-type", "application/json")
@@ -51,7 +58,10 @@ class SimpleServer(BaseHTTPRequestHandler):
 
             self.wfile.write(bytes(json.dumps(hello_dict), "utf-8"))
 
-        if self.path == "/properties/":
+        if path == "/properties/":
+            # Need to clean params
+            params = urllib.parse.parse_qs(query)
+
             # For now, we are going to connecting here
             logging.info("Connecting to database ....")
             orm = SimpleORM()
@@ -61,7 +71,8 @@ class SimpleServer(BaseHTTPRequestHandler):
             self.send_header("Content-type", "application/json")
             self.end_headers()
 
-            properties = orm.get_objects(Property)
+            # We use our ORM to get the objects
+            properties = orm.get_objects(Property, **params)
 
             # We only get some fields from the property
             returning_objects = []

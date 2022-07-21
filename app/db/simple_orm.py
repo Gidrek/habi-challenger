@@ -40,11 +40,26 @@ class SimpleORM:
         Example of arguments
         - table: name where the query is executed
         - fields: a list of fields name
-        - filters: a list of filters to be applied
+        - params: a list of filters to be applied
         """
         fields = ", ".join(kwargs["fields"])
-        query = f"""SELECT {fields} from 
-        {kwargs['table']}"""
+        params = kwargs["params"]
+
+        where_clause = "WHERE status in ('pre_venta', 'vendido', 'en_venta')"
+        filters = ""
+
+        for key, value in params.items():
+            filters = filters + f"{key}='{value[0]}' AND "
+
+        # remove last AND and add the were
+        if filters:
+            filters = filters[:-4]
+            where_clause = f"{where_clause} AND {filters}"
+
+        # I going to hack the query to filter as in the challenger, for time consuming
+        query = f"""SELECT {fields} from {kwargs['table']}
+        {where_clause}
+        """
 
         print(query)
 
@@ -70,6 +85,7 @@ class SimpleORM:
         kwargs = {
             "table": table_name,
             "fields": list(T.__annotations__.keys()),
+            "params": query_params,
         }
         results = self.do_query(**kwargs)
 

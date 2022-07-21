@@ -24,14 +24,10 @@ class RunServer:
         logging.basicConfig(level=logging.INFO)
         self.server = HTTPServer((settings.hostname, settings.port), SimpleServer)
         logging.info(f"Server started http://{settings.hostname}:{settings.port}")
-        logging.info("Connecting to database ....")
-        self.orm = SimpleORM()
-        logging.info("Connecting to database successfully ....")
 
     def run(self) -> None:
         """Runs the server in a infinite loop until interrup with the keyboard"""
         try:
-            self.orm.get_objects(Property)
             self.server.serve_forever()
         except KeyboardInterrupt:
             self.server.server_close()
@@ -56,10 +52,27 @@ class SimpleServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(json.dumps(hello_dict), "utf-8"))
 
         if self.path == "/properties/":
+            # For now, we are going to connecting here
+            logging.info("Connecting to database ....")
+            orm = SimpleORM()
+            logging.info("Connecting to database successfully ....")
+
             self.send_response(200, "OK")
             self.send_header("Content-type", "application/json")
             self.end_headers()
 
-            hello_dict = {"hello": "properties"}
+            properties = orm.get_objects(Property)
 
-            self.wfile.write(bytes(json.dumps(hello_dict), "utf-8"))
+            # We only get some fields from the property
+            returning_objects = []
+            for property in properties:
+                pro = {
+                    "address": property.address,
+                    "city": property.city,
+                    "state": property.state,
+                    "price": property.price,
+                    "description": property.description,
+                }
+                returning_objects.append(pro)
+
+            self.wfile.write(bytes(json.dumps(returning_objects), "utf-8"))

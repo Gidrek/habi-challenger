@@ -1,5 +1,4 @@
 import logging
-from re import T
 from typing import TypeVar, List
 
 import mysql.connector as mysql
@@ -42,7 +41,6 @@ class SimpleORM:
         - table: name where the query is executed
         - fields: a list of fields name
         - filters: a list of filters to be applied
-        - returning_fields: a list of the fields that need to be displayed
         """
         fields = ", ".join(kwargs["fields"])
         query = f"""SELECT {fields} from 
@@ -63,13 +61,13 @@ class SimpleORM:
         """"""
         table_name = ""
 
+        #  Transforms the class to a mysql database
         if T.__name__.lower()[-1] == "y":
             table_name = f"{T.__name__.lower()[:-1]}ies"
         else:
             table_name = f"{T.__name__.lower()}s"
 
         kwargs = {
-            # For now, we are going to assume that the class is always plural with 'es'
             "table": table_name,
             "fields": list(T.__annotations__.keys()),
         }

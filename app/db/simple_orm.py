@@ -5,6 +5,8 @@ import mysql.connector as mysql
 
 from settings.settings import Settings
 
+FILTERS = ["year", "city"]
+
 
 class SimpleORM:
     """A base ORM to connect to Database and send queries"""
@@ -48,24 +50,31 @@ class SimpleORM:
         fields = ", ".join(kwargs["fields"])
         params = kwargs["params"]
 
-        where_clause = "WHERE status in ('pre_venta', 'vendido', 'en_venta')"
         filters = ""
 
         for key, value in params.items():
-            filters = filters + f"{key}='{value[0]}' AND "
+            # Only validate filters that are supposed to be in the query
+            if key in FILTERS:
+                filters = filters + f"{key}='{value[0]}' AND "
 
         # remove last AND and add the were
         if filters:
             filters = filters[:-4]
-            where_clause = f"{where_clause} AND {filters}"
+            filters = f"AND {filters}"
 
         # I going to hack the query to filter as in the challenger,
         # fdor the limitations of this SimpleORM class and for the sake of
         # simplicity in the challenger
-        query = f"""SELECT {fields} from {kwargs['table']}
+        query = f"""SELECT {fields} FROM {kwargs['table']}
+        INNER JOIN status_history sh on property.id = sh.property_id
+        INNER JOIN status s on sh.status_id = s.id
+        WHERE s.name IN ('pre_venta', 'vendido', 'en_venta')
+        AND sh.update_date IN (SELECT MAX(sh.update_date) FROM status_history)
+        {filters}
+        GROUP BY sh.property_id
         """
 
-        print(query)
+        logging.info(query)
 
         objects = []
         self.cursor.execute(query)

@@ -37,15 +37,33 @@ Nice to have:
 
 ## Installation
 
-TODO
+To run the project we need Docker and Docker Compose
+
+First, copy the `.env.example` to a new file called `.env`, and change the required values.
+
+Then run
+
+```
+docker compose up -d
+```
+
+To run the container
 
 ## Usage
 
-TODO
+You can any HTTP request tool to make GET requests to the endpoing:
 
-## Futures updates
+### Get all properties
 
+```
+curl --location --request GET 'http://localhost:8000/properties/'
+```
 
+### Filter by year or city (inclusive)
+
+```
+curl --location --request GET 'http://localhost:8000/properties/?year=2000&city=bogota'
+```
 
 ## Problems
 

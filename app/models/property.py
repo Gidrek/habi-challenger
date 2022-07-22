@@ -7,32 +7,23 @@ class Property:
     """Class that models a Property in the database"""
 
     id: int
-    name: str
-    status: str
-    year: int
-    state: str
-    city: str
     address: str
+    city: str
     price: int
     description: str
+    year: int
 
     def __init__(
         self,
         id: int,
-        name: str,
-        status: str,
-        year: int,
-        state: str,
-        city: str,
         address: str,
+        city: str,
         price: int,
         description: str,
+        year: int,
     ) -> "Property":
         self.id = id
-        self.name = name
-        self.status = status
         self.year = year
-        self.state = state
         self.city = city
         self.address = address
         self.price = price

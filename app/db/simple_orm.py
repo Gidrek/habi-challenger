@@ -23,6 +23,7 @@ class SimpleORM:
                 database=settings.database_name,
                 user=settings.database_user,
                 password=settings.database_password,
+                port=settings.database_port,
             )
             self.db = db
             self.cursor = db.cursor()
@@ -34,13 +35,15 @@ class SimpleORM:
         """Maintains the cursor alive until the object is clean"""
         self.cursor.close()
 
-    def do_query(self, **kwargs) -> List[dict]:
+    def __do_query(self, **kwargs) -> List[dict]:
         """Create a query to database
 
         Example of arguments
         - table: name where the query is executed
         - fields: a list of fields name
         - params: a list of filters to be applied
+
+        This methods means to be private
         """
         fields = ", ".join(kwargs["fields"])
         params = kwargs["params"]
@@ -56,9 +59,10 @@ class SimpleORM:
             filters = filters[:-4]
             where_clause = f"{where_clause} AND {filters}"
 
-        # I going to hack the query to filter as in the challenger, for time consuming
+        # I going to hack the query to filter as in the challenger,
+        # fdor the limitations of this SimpleORM class and for the sake of
+        # simplicity in the challenger
         query = f"""SELECT {fields} from {kwargs['table']}
-        {where_clause}
         """
 
         print(query)
@@ -73,21 +77,15 @@ class SimpleORM:
         return objects
 
     def get_objects(self, T, **query_params) -> List[T]:
-        """"""
-        table_name = ""
-
-        #  Transforms the class to a mysql database
-        if T.__name__.lower()[-1] == "y":
-            table_name = f"{T.__name__.lower()[:-1]}ies"
-        else:
-            table_name = f"{T.__name__.lower()}s"
+        """Return a list of objects from T model."""
+        table_name = T.__name__.lower()
 
         kwargs = {
             "table": table_name,
             "fields": list(T.__annotations__.keys()),
             "params": query_params,
         }
-        results = self.do_query(**kwargs)
+        results = self.__do_query(**kwargs)
 
         # Create a list of objects to return
         list_of_objects = []

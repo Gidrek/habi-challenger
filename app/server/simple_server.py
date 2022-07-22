@@ -67,6 +67,7 @@ class SimpleServer(BaseHTTPRequestHandler):
             orm = SimpleORM()
             logging.info("Connecting to database successfully ....")
 
+            # Response from the server
             self.send_response(200, "OK")
             self.send_header("Content-type", "application/json")
             self.end_headers()
@@ -77,10 +78,14 @@ class SimpleServer(BaseHTTPRequestHandler):
             # We only get some fields from the property
             returning_objects = []
             for property in properties:
+                # If there is not info about price or address, then we don't add to the list of
+                # objects
+                if property.price == 0 or not property.address or not property.city:
+                    continue
+
                 pro = {
                     "address": property.address,
                     "city": property.city,
-                    "state": property.state,
                     "price": property.price,
                     "description": property.description,
                 }

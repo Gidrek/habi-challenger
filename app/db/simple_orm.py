@@ -11,7 +11,7 @@ FILTERS = ["year", "city"]
 class SimpleORM:
     """A base ORM to connect to Database and send queries"""
 
-    T = TypeVar("T")  #  Declare type variable for generic use
+    T = TypeVar("T")  # Declare type variable for generic use
 
     def __init__(self) -> None:
         """Create the connection to the database
@@ -98,7 +98,7 @@ class SimpleORM:
 
         # Create a list of objects to return
         list_of_objects = []
-        for object in results:
-            list_of_objects.append(T(**object))
+        for o in results:
+            list_of_objects.append(T(**o))
 
         return list_of_objects
